@@ -237,6 +237,8 @@ export default {
             pinActive: localStorage.getItem('pinActive') === 'true',
             printMapFull: false,
             countdownStarted: false,
+            aiResult: null,
+            isAILoading: false,
             game: {
                 multiplayer: !!this.roomName,
                 date: new Date(),
@@ -444,25 +446,54 @@ export default {
                 });
             }
         },
-        selectLocation() {
+        async selectLocation() {
             this.calculateDistance();
+
+            const aiData = await this.callAIGuess();
+
+            if (aiData) {
+                // 3. AIの距離を計算
+                const aiPos = new google.maps.LatLng(aiData.latitude, aiData.longitude);
+                const aiDistance = Math.floor(
+                    google.maps.geometry.spherical.computeDistanceBetween(
+                        this.randomLatLng,
+                        aiPos
+                    )
+                );
+
+                // 4. スコアの補正（AIより人間が近ければ1.5倍、負ければ0.8倍など）
+                if (this.distance < aiDistance) {
+                    this.point = Math.floor(this.point * 1.5);
+                    // 画面に通知を出す（Vuetifyのトーストやalertなど）
+                    alert(`AIに勝利！(AI誤差: ${Math.floor(aiDistance/1000)}km) スコア1.5倍！\n理由: ${aiData.reason}`);
+                } else {
+                    this.point = Math.floor(this.point * 0.8);
+                    alert(`AIの勝利... (AI誤差: ${Math.floor(aiDistance/1000)}km) スコア0.8倍。\nAIの推論: ${aiData.reason}`);
+                }
+
+                // 5. 補正したスコアを反映（Emitして親コンポーネントのスコアを更新）
+                this.$emit('calculateDistance', this.distance, this.point);
+            }
 
             if (this.room) {
                 // Save the selected location into database
                 // So that it uses for putting the markers and polylines
                 this.room
+                    .child('round' + this.round + '/player' + this.playerNumber)
+                    .set({
+                        ...getSelectedPos(this.selectedPos, this.mode),
+                        distance: this.distance,
+                        points: this.point,
+                        timePassed: new Date() - this.startTime,
+                    });
+
+                this.room
                     .child('guess/player' + this.playerNumber)
                     .set(getSelectedPos(this.selectedPos, this.mode));
             } else {
-                // Put the marker on the random location
+                // シングルプレイ時のマップ表示更新
                 this.$refs.map.putMarker(this.randomLatLng, true);
-                // Show the polyline
-                this.$refs.map.drawPolyline(
-                    this.selectedPos,
-                    1,
-                    this.randomLatLng
-                );
-
+                this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
                     null,
                     this.distance,
@@ -488,6 +519,31 @@ export default {
 
             // Turn off the flag before the next button appears
             this.isNextStreetViewReady = false;
+        },
+        async callAIGuess() {
+            this.isAILoading = true;
+            try {
+                const response = await fetch("/.netlify/functions/gemini", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        lat: this.randomLatLng.lat(), 
+                        lng: this.randomLatLng.lng() 
+                    }),
+                });
+                const data = await response.json();
+                this.aiResult = data;
+
+                // AIの場所にもピンを立てる（色は青などにする）
+                const aiPos = new google.maps.LatLng(data.latitude, data.longitude);
+                this.$refs.map.putMarker(aiPos, false, 'AI'); 
+        
+                return data;
+            } catch (e) {
+                console.error("AI Guess failed", e);
+            } finally {
+                this.isAILoading = false;
+            }
         },
         selectRandomLocation(randomLatLng) {
             if (this.selectedPos === null) {
