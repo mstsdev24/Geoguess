@@ -1,63 +1,52 @@
+// netlify/functions/gemini.js
 export default async (request) => {
   try {
-    // ① フロントから送られたデータを読む
-    const { imageUrl } = await request.json();
+    // ① フロントから座標（lat, lng）を受け取る
+    const { lat, lng } = await request.json();
 
-    // ② 環境変数からAPIキー取得（安全）
-    const apiKey = process.env.GEMINI_API_KEY;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
-    // ③ Gemini API エンドポイント
-    const endpoint =
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
-      apiKey;
+    // ② Google Street View Static API から画像を取得
+    const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=640x480&location=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`;
+    const imageResponse = await fetch(streetViewUrl);
+    const buffer = await imageResponse.arrayBuffer();
+    const base64Image = Buffer.from(buffer).toString('base64');
 
-    // ④ Gemini に送る内容
+    // ③ Gemini API 呼び出し (inlineDataを使用)
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
     const body = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `
-This is a Google Street View image.
-Estimate the latitude and longitude.
-Return JSON only:
-{
-  "latitude": number,
-  "longitude": number,
-  "confidence": number,
-  "reason": string
-}
-              `
-            },
-            {
-              fileData: {
-                mimeType: "image/jpeg",
-                fileUri: imageUrl
-              }
+      contents: [{
+        parts: [
+          { text: "Estimate the latitude and longitude of this Google Street View image. Return JSON only: {\"latitude\": number, \"longitude\": number, \"reason\": string}" },
+          {
+            inlineData: {
+              mimeType: "image/jpeg",
+              data: base64Image
             }
-          ]
-        }
-      ]
+          }
+        ]
+      }]
     };
 
-    // ⑤ Gemini API 呼び出し
-    const response = await fetch(endpoint, {
+    const geminiResponse = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
 
-    const data = await response.json();
+    const data = await geminiResponse.json();
 
-    // ⑥ ブラウザへ返す
-    return new Response(JSON.stringify(data), {
+    // Geminiの回答テキスト（JSON文字列）を解析して返す
+    const aiText = data.candidates[0].content.parts[0].text;
+    const aiResult = JSON.parse(aiText.replace(/```json|```/g, "")); // 余計な装飾を除去
+
+    return new Response(JSON.stringify(aiResult), {
       headers: { "Content-Type": "application/json" }
     });
 
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };
