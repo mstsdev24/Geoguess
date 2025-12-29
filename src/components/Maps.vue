@@ -447,7 +447,14 @@ export default {
             }
         },
         async selectLocation() {
+            // eslint-disable-next-line no-console
+            console.log("Guess button clicked!");
+            
             this.calculateDistance();
+
+            // eslint-disable-next-line no-console
+            console.log("Calling AI Guess...");
+            const aiData = await this.callAIGuess();
 
             const aiData = await this.callAIGuess();
 
