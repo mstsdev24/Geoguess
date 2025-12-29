@@ -540,6 +540,7 @@ export default {
         
                 return data;
             } catch (e) {
+                // eslint-disable-next-line no-console
                 console.error("AI Guess failed", e);
             } finally {
                 this.isAILoading = false;
