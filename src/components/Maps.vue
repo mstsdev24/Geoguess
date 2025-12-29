@@ -454,7 +454,6 @@ export default {
 
             // eslint-disable-next-line no-console
             console.log("Calling AI Guess...");
-            const aiData = await this.callAIGuess();
 
             const aiData = await this.callAIGuess();
 
@@ -506,7 +505,7 @@ export default {
                     this.distance,
                     this.point,
                     false,
-                    this.setSeletedPos
+                    this.seletedPos
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
