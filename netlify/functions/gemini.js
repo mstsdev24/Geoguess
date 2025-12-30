@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
     const body = {
       contents: [{
         parts: [
-          { text: "Estimate the latitude and longitude of this Google Street View image. Return ONLY a valid JSON object like this: {\"latitude\": 35.0, \"longitude\": 139.0, \"reason\": \"string\"}. Do not include markdown formatting or any other text." },
+          { text: "Estimate the latitude and longitude of this Google Street View image. Return ONLY a valid JSON object like this: {\"latitude\": 35.0, \"longitude\": 139.0, \"reason\": \"string\"}. Do not include markdown formatting or any other text. Responses of text for reason should be written in Japanese, not English." },
           {
             inlineData: {
               mimeType: "image/jpeg",
