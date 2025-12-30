@@ -23,12 +23,12 @@ exports.handler = async (event, context) => {
     const base64Image = Buffer.from(buffer).toString('base64');
 
     // 2. Gemini API 呼び出し
-    const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const body = {
       contents: [{
         parts: [
-          { text: "Estimate the latitude and longitude of this image. Return ONLY a valid JSON object like this: {\"latitude\": 35.0, \"longitude\": 139.0, \"reason\": \"string\"}. Do not include markdown formatting or any other text." },
+          { text: "Estimate the latitude and longitude of this Google Street View image. Return ONLY a valid JSON object like this: {\"latitude\": 35.0, \"longitude\": 139.0, \"reason\": \"string\"}. Do not include markdown formatting or any other text." },
           {
             inlineData: {
               mimeType: "image/jpeg",
