@@ -537,6 +537,12 @@ export default {
                         lng: this.randomLatLng.lng() 
                     }),
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Server Error Details:", errorText);
+                    return null;
+                }
                 const data = await response.json();
                 this.aiResult = data;
 
