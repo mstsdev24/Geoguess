@@ -549,6 +549,7 @@ export default {
                 console.log("AI Response Data:", data); // ← これをコンソールで確認してください
 
                 if (!data || data.latitude === undefined) {
+                    /* eslint-disable-next-line no-console */
                     console.error("AI Data is empty or invalid structure");
                     return null;
                 }
