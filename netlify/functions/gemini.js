@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
     const base64Image = Buffer.from(buffer).toString('base64');
 
     // 2. Gemini API 呼び出し
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const body = {
       contents: [{
