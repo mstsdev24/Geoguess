@@ -540,10 +540,18 @@ export default {
 
                 if (!response.ok) {
                     const errorText = await response.text();
+                    /* eslint-disable-next-line no-console */
                     console.error("Server Error Details:", errorText);
                     return null;
                 }
                 const data = await response.json();
+                console.log("AI Response Data:", data); // ← これをコンソールで確認してください
+
+                if (!data || data.latitude === undefined) {
+                    console.error("AI Data is empty or invalid structure");
+                    return null;
+                }
+            
                 this.aiResult = data;
 
                 // AIの場所にもピンを立てる（色は青などにする）
