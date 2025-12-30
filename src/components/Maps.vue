@@ -545,6 +545,7 @@ export default {
                     return null;
                 }
                 const data = await response.json();
+                /* eslint-disable-next-line no-console */
                 console.log("AI Response Data:", data); // ← これをコンソールで確認してください
 
                 if (!data || data.latitude === undefined) {
