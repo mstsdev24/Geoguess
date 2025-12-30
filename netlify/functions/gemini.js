@@ -9,10 +9,10 @@ exports.handler = async (event, context) => {
     const { lat, lng } = JSON.parse(event.body);
 
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-    const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+    const VUE_APP_API_KEY = process.env.VUE_APP_API_KEY;
 
     // 1. Google Street View から画像取得
-    const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=640x480&location=${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`;
+    const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=640x480&location=${lat},${lng}&key=${VUE_APP_API_KEY}`;
     const imageResponse = await fetch(streetViewUrl);
     
     if (!imageResponse.ok) {
