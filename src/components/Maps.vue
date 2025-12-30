@@ -303,6 +303,18 @@ export default {
 
                         this.$emit('showResult');
 
+                        const aiSnap = snapshot.child(`ai/round${this.round}`);
+                        if (aiSnap.exists()) {
+                            const ai = aiSnap.val();
+
+                            // ローカルに保存（後で使える）
+                            this.aiResult = ai;
+
+                            // AIの推定地点にピンを立てる
+                            const aiPos = new google.maps.LatLng(ai.latitude, ai.longitude);
+                            this.$refs.map.putMarker(aiPos, false, 'AI');
+                        }
+
                         // Put markers and draw polylines on the map
                         let i = 0;
                         let players = {};
@@ -455,7 +467,22 @@ export default {
             // eslint-disable-next-line no-console
             console.log("Calling AI Guess...");
 
-            const aiData = await this.callAIGuess();
+            let aiData = null;
+
+            if (this.room) {
+                const snap = await this.room.child(`ai/round${this.round}`).get();
+                if (snap.exists()) {
+                    aiData = snap.val();
+                }
+            }
+
+            // ② 無ければ player1 が作る
+            if (!aiData && this.room && this.playerNumber === 1) {
+                aiData = await this.callAIGuess();
+                if (aiData) {
+                    await this.room.child(`ai/round${this.round}`).set(aiData);
+                }
+            }
 
             if (aiData) {
                 // 3. AIの距離を計算
@@ -476,9 +503,6 @@ export default {
                     this.point = Math.floor(this.point * 0.8);
                     alert(`AIの勝利... (AI誤差: ${Math.floor(aiDistance/1000)}km) スコア0.8倍。\nAIの推論: ${aiData.reason}`);
                 }
-
-                // 5. 補正したスコアを反映（Emitして親コンポーネントのスコアを更新）
-                this.$emit('calculateDistance', this.distance, this.point);
             }
 
             if (this.room) {
@@ -556,10 +580,6 @@ export default {
             
                 this.aiResult = data;
 
-                // AIの場所にもピンを立てる（色は青などにする）
-                const aiPos = new google.maps.LatLng(data.latitude, data.longitude);
-                this.$refs.map.putMarker(aiPos, false, 'AI'); 
-        
                 return data;
             } catch (e) {
                 // eslint-disable-next-line no-console
@@ -601,26 +621,6 @@ export default {
                     timePassed,
                     this.scoreMode
                 );
-            }
-            // Save the distance into firebase
-            if (this.room) {
-                this.room
-                    .child('round' + this.round + '/player' + this.playerNumber)
-                    .set({
-                        ...getSelectedPos(this.selectedPos, this.mode),
-                        distance: this.distance,
-                        points: this.point,
-                        timePassed,
-                    });
-            } else {
-                this.game.rounds.push({
-                    guess: this.selectedPos,
-                    area: this.area,
-                    position: this.randomLatLng,
-                    distance: this.distance,
-                    points: this.point,
-                    timePassed,
-                });
             }
 
             this.$emit('calculateDistance', this.distance, this.point);
