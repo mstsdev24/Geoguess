@@ -484,24 +484,29 @@ export default {
                 }
             }
 
-            if (aiData) {
-                // 3. AIの距離を計算
-                const aiPos = new google.maps.LatLng(aiData.latitude, aiData.longitude);
-                const aiDistance = Math.floor(
-                    google.maps.geometry.spherical.computeDistanceBetween(
-                        this.randomLatLng,
-                        aiPos
-                    )
-                );
+            if (!aiData && this.room && this.playerNumber === 1) {
+                aiData = await this.callAIGuess();
+                if (aiData) {
+                    await this.room.child(`ai/round${this.round}`).set(aiData);
+                }
+            }
+
+            // ③ スコア補正（仕様どおり）
+            if (aiData && this.distance !== null) {
+                if (this.distance < aiData.distance) {
+                    this.point = Math.floor(this.point * 1.5);
+                }
+                // 負けた場合は何もしない
+            }
 
                 // 4. スコアの補正（AIより人間が近ければ1.5倍、負ければ0.8倍など）
                 if (this.distance < aiDistance) {
                     this.point = Math.floor(this.point * 1.5);
                     // 画面に通知を出す（Vuetifyのトーストやalertなど）
-                    alert(`AIに勝利！(AI誤差: ${Math.floor(aiDistance/1000)}km) スコア1.5倍！\n理由: ${aiData.reason}`);
+                    // alert(`AIに勝利！(AI誤差: ${Math.floor(aiDistance/1000)}km) スコア1.5倍！\n理由: ${aiData.reason}`);
                 } else {
-                    this.point = Math.floor(this.point * 0.8);
-                    alert(`AIの勝利... (AI誤差: ${Math.floor(aiDistance/1000)}km) スコア0.8倍。\nAIの推論: ${aiData.reason}`);
+                    // this.point = Math.floor(this.point * 0.8);
+                    // alert(`AIの勝利... (AI誤差: ${Math.floor(aiDistance/1000)}km) スコア0.8倍。\nAIの推論: ${aiData.reason}`);
                 }
             }
 
@@ -514,7 +519,7 @@ export default {
                         ...getSelectedPos(this.selectedPos, this.mode),
                         distance: this.distance,
                         points: this.point,
-                        timePassed: new Date() - this.startTime,
+                        timePassed: this.startTime ? new Date() - this.startTime : 0,
                     });
 
                 this.room
