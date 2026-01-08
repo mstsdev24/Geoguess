@@ -335,6 +335,7 @@ export default {
                             );
 
                             // 距離計算（km）
+                            let aiDistance = null;
                             if (
                               google.maps.geometry &&
                               google.maps.geometry.spherical
