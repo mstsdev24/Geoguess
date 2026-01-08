@@ -340,7 +340,7 @@ export default {
                               google.maps.geometry &&
                               google.maps.geometry.spherical
                             ) {
-                              const aiDistance =
+                              aiDistance =
                                 google.maps.geometry.spherical.computeDistanceBetween(
                                   aiPos,
                                   answerPos
