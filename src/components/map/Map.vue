@@ -43,26 +43,28 @@ export default {
     },
     methods: {
         putMarker(position, isRandomLocation, label) {
+        putMarker(position, isRandomLocation, label, options = {}) {
             let info = {};
+
             if (isRandomLocation) {
-                info = {
-                    icon: {
-                        url: window.location.origin + '/img/icons/favicon-16x16.png',
-                        anchor: new google.maps.Point(8,8),
-                    }
+                info.icon = {
+                    url: window.location.origin + '/img/icons/favicon-16x16.png',
+                    anchor: new google.maps.Point(8,8),
                 };
             }
+
             if (label) {
-                info = {
-                    label,
-                };
+                info.label = label;
             }
+
             const marker = new google.maps.Marker({
                 ...info,
-                position: position,
+                position,
                 map: this.map,
             });
-            this.markers.push(marker);
+
+            marker.__meta = options; // ← AI用メタ情報
+            his.markers.push(marker);
         },
         removeMarkers() {
             for (const element of this.markers) {
@@ -70,39 +72,40 @@ export default {
             }
             this.markers = [];
         },
-        setInfoWindow(playerName, distance, points, endGame = false) {
+        setInfoWindow(playerName, distance, points, endGame = false, reason = null) {
             let dataToDisplay = '';
 
+            // 距離
             if (distance < 1000) {
                 dataToDisplay +=
-                    '<b>' +
-                    this.$t('Maps.infoWindow.Distance') +
-                    ': </b>' +
+                    `<b>${this.$t('Maps.infoWindow.Distance')}:</b> ` +
                     new Intl.NumberFormat(this.$i18n.locale, { style: "unit", unit:"meter" }).format(distance);
             } else {
                 dataToDisplay +=
-                    '<b>' +
-                    this.$t('Maps.infoWindow.Distance') +
-                    ': </b>' +
+                    `<b>${this.$t('Maps.infoWindow.Distance')}:</b> ` +
                     new Intl.NumberFormat(this.$i18n.locale, { style: "unit", unit:"kilometer" }).format(distance / 1000);
             }
 
-            dataToDisplay +=
-                '<br/><b>' +
-                this.$t('Maps.infoWindow.Points') +
-                ': </b>' +
-                points;
+            // 人間のみポイント表示
+            if (points !== null && points !== undefined) {
+                dataToDisplay +=
+                    `<br/><b>${this.$t('Maps.infoWindow.Points')}:</b> ${points}`;
+            }
+
+            // AIのみ理由表示
+            if (reason) {
+                dataToDisplay += `<br/><i>${reason}</i>`;
+            }
 
             const infoWindow = new google.maps.InfoWindow({
                 headerContent: playerName,
                 headerDisabled: !playerName,
                 content: `<div>${dataToDisplay}</div>`,
             });
+
             infoWindow.open(
                 this.map,
-                this.markers[
-                    playerName || endGame ? this.markers.length - 1 : 0
-                ]
+                this.markers[playerName || endGame ? this.markers.length - 1 : 0]
             );
         },
         drawPolyline(selectedLatLng, i = 0, randomLatLng) {
