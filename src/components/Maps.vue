@@ -502,8 +502,6 @@ export default {
             }
         },
         async selectLocation() {
-            console.log("Guess button clicked!");
-
             // ① まず人間の距離・スコアを計算
             this.calculateDistance();
 
