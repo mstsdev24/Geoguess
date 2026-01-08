@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Firebase client-side config values are intentionally public and safe to expose in the build output
+  # They are NOT secrets - Firebase security comes from Firebase Security Rules, not from hiding these values
+  # This tells Netlify's secrets scanner to skip these values
+  SECRETS_SCAN_OMIT_KEYS = "VUE_APP_API_KEY,VUE_APP_FIREBASE_API_KEY,VUE_APP_FIREBASE_APP_ID,VUE_APP_FIREBASE_AUTH_DOMAIN,VUE_APP_FIREBASE_DATABASE_URL,VUE_APP_FIREBASE_MEASUREMENT_ID,VUE_APP_FIREBASE_MESSAGING_SENDER_ID,VUE_APP_FIREBASE_PROJECT_ID,VUE_APP_STORAGE_BUCKET"
+
 [template.environment]
   VUE_APP_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY"
   VUE_APP_FIREBASE_API_KEY = "YOUR_FIREBASE_API_KEY"
