@@ -24,6 +24,21 @@
         "
     >
         <div class="container-map_details">
+            <!-- AI Result -->
+            <div
+              v-if="aiResult"
+              class="ai-result-box"
+            >
+              <h3>🤖 AIの推測</h3>
+              <p>
+                誤差：
+                {{ Math.floor(aiResult.distance / 1000) }} km
+              </p>
+              <p class="ai-reason">
+                {{ aiResult.reason }}
+              </p>
+            </div>
+
             <div class="alert-container">
                 <Leaderboard
                     v-if="guessString && !$vuetify.breakpoint.mobile && leaderboardShown"
@@ -306,6 +321,41 @@ export default {
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
                         if (aiSnap.exists()) {
                             const ai = aiSnap.val();
+
+                            // 正解地点
+                            const answerPos = new google.maps.LatLng(
+                              this.answer.latitude,
+                              this.answer.longitude
+                            );
+
+                            // AI地点
+                            const aiPos = new google.maps.LatLng(
+                              ai.latitude,
+                              ai.longitude
+                            );
+
+                            // 距離計算（km）
+                            const aiDistance =
+                              google.maps.geometry.spherical.computeDistanceBetween(
+                                aiPos,
+                                answerPos
+                              );
+
+                            // aiResult を完全な形にする
+                            this.aiResult = {
+                              ...ai,
+                              distance: aiDistance
+                            };
+
+                            // マーカー表示（距離を渡す）
+                            this.$refs.map.putMarker(
+                              aiPos,
+                              false,
+                              'AI',
+                              aiDistance,
+                              null,
+                              true // ← AIフラグ
+                            );
 
                             // ローカルに保存（後で使える）
                             this.aiResult = ai;
@@ -638,6 +688,7 @@ export default {
             if (isPlayAgain) {
                 this.dialogSummary = false;
                 this.isSummaryButtonVisible = false;
+                this.aiResult = null;
             }
 
             // Reset
