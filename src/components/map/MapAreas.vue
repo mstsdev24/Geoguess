@@ -45,11 +45,19 @@
                 v-for="info in infoWindowDatas"
                 :key="info.playerName"
                 class="result-panel__item"
-                :class="{ flag: showFlag }"
+                :class="{ flag: showFlag, ai: info.isAI }"
             >
                 <FlagIcon v-if="showFlag" :iso-name="info.area" />
                 <b>{{ info.playerName }}</b>
                 <span v-if="!showFlag">{{ info.area }}</span>
+
+                <span v-if="info.distance != null" class="distance">
+                    （{{ Math.round(info.distance / 1000) }} km）
+                </span>
+
+                <div v-if="info.reason" class="ai-reason">
+                    {{ info.reason }}
+                </div>
             </div>
         </div>
     </div>
@@ -202,7 +210,13 @@ export default {
             this.infoWindowDatas = [];
         },
         setInfoWindow(playerName, _distance, _points, _endGame, area) {
-            if (playerName) this.infoWindowDatas.push({ playerName, area });
+            if (playerName) this.infoWindowDatas.push({
+                playerName,
+                area,
+                distance: _distance ?? null,
+                reason: arguments.length >= 6 ? arguments[5] : null,
+                isAI: playerName === 'AI',
+            });
         },
         startNextRound() {
             if (this.polygonSelect) {
