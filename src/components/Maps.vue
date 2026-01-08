@@ -356,13 +356,6 @@ export default {
                               null,
                               true // ← AIフラグ
                             );
-
-                            // ローカルに保存（後で使える）
-                            this.aiResult = ai;
-
-                            // AIの推定地点にピンを立てる
-                            const aiPos = new google.maps.LatLng(ai.latitude, ai.longitude);
-                            this.$refs.map.putMarker(aiPos, false, 'AI');
                         }
 
                         // Put markers and draw polylines on the map
@@ -509,62 +502,33 @@ export default {
             }
         },
         async selectLocation() {
-            // eslint-disable-next-line no-console
             console.log("Guess button clicked!");
-            
-            this.calculateDistance();
 
-            // eslint-disable-next-line no-console
-            console.log("Calling AI Guess...");
+            // ① まず人間の距離・スコアを計算
+            this.calculateDistance();
 
             let aiData = null;
 
             if (this.room) {
+                // ② すでに AI がいれば読む
                 const snap = await this.room.child(`ai/round${this.round}`).get();
                 if (snap.exists()) {
                     aiData = snap.val();
                 }
-            }
 
-            // ② 無ければ player1 が作る
-            if (!aiData && this.room && this.playerNumber === 1) {
-                aiData = await this.callAIGuess();
-                if (aiData) {
-                    await this.room.child(`ai/round${this.round}`).set(aiData);
-                }
-            }
-
-            if (!aiData && this.room && this.playerNumber === 1) {
-                aiData = await this.callAIGuess();
-                if (aiData) {
-                    await this.room.child(`ai/round${this.round}`).set(aiData);
-                }
-            }
-
-            // ③ スコア補正（仕様どおり）
-            if (aiData && this.distance !== null) {
-                if (this.distance < aiData.distance) {
-                    this.point = Math.floor(this.point * 1.5);
-                }
-                // 負けた場合は何もしない
-            }
-
-                // 4. スコアの補正（AIより人間が近ければ1.5倍、負ければ0.8倍など）
-                if (this.distance < aiDistance) {
-                    this.point = Math.floor(this.point * 1.5);
-                    // 画面に通知を出す（Vuetifyのトーストやalertなど）
-                    // alert(`AIに勝利！(AI誤差: ${Math.floor(aiDistance/1000)}km) スコア1.5倍！\n理由: ${aiData.reason}`);
-                } else {
-                    // this.point = Math.floor(this.point * 0.8);
-                    // alert(`AIの勝利... (AI誤差: ${Math.floor(aiDistance/1000)}km) スコア0.8倍。\nAIの推論: ${aiData.reason}`);
+                // ③ なければ player1 が AI を作る
+                if (!aiData && this.playerNumber === 1) {
+                    aiData = await this.callAIGuess();
+                    if (aiData) {
+                        await this.room.child(`ai/round${this.round}`).set(aiData);
+                    }
                 }
             }
 
             if (this.room) {
-                // Save the selected location into database
-                // So that it uses for putting the markers and polylines
+                // ④ 人間の結果を保存
                 this.room
-                    .child('round' + this.round + '/player' + this.playerNumber)
+                    .child(`round${this.round}/player${this.playerNumber}`)
                     .set({
                         ...getSelectedPos(this.selectedPos, this.mode),
                         distance: this.distance,
@@ -573,10 +537,10 @@ export default {
                     });
 
                 this.room
-                    .child('guess/player' + this.playerNumber)
+                    .child(`guess/player${this.playerNumber}`)
                     .set(getSelectedPos(this.selectedPos, this.mode));
             } else {
-                // シングルプレイ時のマップ表示更新
+                // シングルプレイ（今回はAIなし想定）
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
@@ -584,25 +548,18 @@ export default {
                     this.distance,
                     this.point,
                     false,
-                    this.seletedPos
+                    this.selectedPos
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
-                if (this.round >= this.nbRound) {
-                    this.isSummaryButtonVisible = true;
-                } else {
-                    this.isNextButtonVisible = true;
-                }
+                this.isNextButtonVisible = this.round < this.nbRound;
+                this.isSummaryButtonVisible = this.round >= this.nbRound;
                 this.$emit('showResult');
             }
-            // Clear the event
-            this.$refs.map.removeListener();
 
-            // Diable guess button and opacity of the map
+            this.$refs.map.removeListener();
             this.isGuessButtonClicked = true;
             this.isSelected = true;
-
-            // Turn off the flag before the next button appears
             this.isNextStreetViewReady = false;
         },
         async callAIGuess() {
