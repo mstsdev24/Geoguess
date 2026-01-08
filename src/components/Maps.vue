@@ -324,8 +324,8 @@ export default {
 
                             // 正解地点
                             const answerPos = new google.maps.LatLng(
-                              this.answer.latitude,
-                              this.answer.longitude
+                              this.randomLatLng.lat(),
+                              this.randomLatLng.lng()
                             );
 
                             // AI地点
@@ -335,29 +335,35 @@ export default {
                             );
 
                             // 距離計算（km）
-                            const aiDistance =
-                              google.maps.geometry.spherical.computeDistanceBetween(
-                                aiPos,
-                                answerPos
-                              );
+                            if (
+                              google.maps.geometry &&
+                              google.maps.geometry.spherical
+                            ) {
+                              const aiDistance =
+                                google.maps.geometry.spherical.computeDistanceBetween(
+                                  aiPos,
+                                  answerPos
+                                );
 
                             // aiResult を完全な形にする
-                            this.aiResult = {
-                              ...ai,
-                              distance: aiDistance
-                            };
+                              this.aiResult = {
+                                ...ai,
+                                distance: aiDistance
+                              };
+                            }
 
                             // マーカー表示（距離を渡す）
-                            this.$refs.map.putMarker(
-                              aiPos,
-                              false,
-                              'AI',
-                              aiDistance,
-                              null,
-                              true // ← AIフラグ
-                            );
+                            if (this.$refs.map && aiDistance !== null) {
+                                this.$refs.map.putMarker(
+                                  aiPos,
+                                  false,
+                                  'AI',
+                                  aiDistance,
+                                  null,
+                                  true // ← AIフラグ
+                                );
+                            }
                         }
-
                         // Put markers and draw polylines on the map
                         let i = 0;
                         let players = {};
