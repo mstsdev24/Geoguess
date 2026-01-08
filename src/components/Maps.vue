@@ -336,32 +336,26 @@ export default {
 
                             // 距離計算（km）
                             let aiDistance = null;
-                            if (
-                              google.maps.geometry &&
-                              google.maps.geometry.spherical
-                            ) {
+                            if (google.maps.geometry && google.maps.geometry.spherical) {
                               aiDistance =
                                 google.maps.geometry.spherical.computeDistanceBetween(
                                   aiPos,
                                   answerPos
                                 );
+                            }
 
                             // aiResult を完全な形にする
-                              this.aiResult = {
+                            this.aiResult = {
                                 ...ai,
                                 distance: aiDistance
-                              };
-                            }
+                            };
 
                             // マーカー表示（距離を渡す）
                             if (this.$refs.map && aiDistance !== null) {
                                 this.$refs.map.putMarker(
                                   aiPos,
                                   false,
-                                  'AI',
-                                  aiDistance,
-                                  null,
-                                  true // ← AIフラグ
+                                  'AI'
                                 );
                             }
                         }
@@ -525,7 +519,6 @@ export default {
                     await this.room.child(`ai/round${this.round}`).set(aiData);
                   }
                 }
-                this.aiResult = aiData || null;
             }
 
             if (this.room) {
