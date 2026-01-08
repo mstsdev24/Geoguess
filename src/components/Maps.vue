@@ -519,15 +519,13 @@ export default {
                 const snap = await this.room.child(`ai/round${this.round}`).get();
                 if (snap.exists()) {
                     aiData = snap.val();
+                } else if (this.playerNumber === 1) {
+                  aiData = await this.callAIGuess();
+                  if (aiData) {
+                    await this.room.child(`ai/round${this.round}`).set(aiData);
+                  }
                 }
-
-                // ③ なければ player1 が AI を作る
-                if (!aiData && this.playerNumber === 1) {
-                    aiData = await this.callAIGuess();
-                    if (aiData) {
-                        await this.room.child(`ai/round${this.round}`).set(aiData);
-                    }
-                }
+                this.aiResult = aiData || null;
             }
 
             if (this.room) {
