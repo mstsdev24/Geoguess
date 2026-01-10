@@ -514,11 +514,40 @@ export default {
                 if (snap.exists()) {
                     aiData = snap.val();
                 } else if (this.playerNumber === 1) {
-                  aiData = await this.callAIGuess();
-                  if (aiData) {
-                    await this.room.child(`ai/round${this.round}`).set(aiData);
-                  }
+                    try {
+                        aiData = await this.callAIGuess();
+                    } catch (e) {
+                        console.error('AI guess failed', e);
+                        aiData = null;
+                    }
+            
+                    if (aiData) {
+                        const answerPos = new google.maps.LatLng(
+                            this.randomLatLng.lat(),
+                            this.randomLatLng.lng()
+                        );
+                        const aiPos = new google.maps.LatLng(
+                            aiData.latitude,
+                            aiData.longitude
+                        );
+
+                        let aiDistance = null;
+                        if (google.maps.geometry?.spherical) {
+                            aiDistance =
+                                google.maps.geometry.spherical.computeDistanceBetween(
+                                    aiPos,
+                                    answerPos
+                                );
+                        }
+                        this.aiResult = {
+                            ...aiData,
+                            distance: aiDistance
+                        };
+                        this.$refs.map.putMarker(aiPos, false, 'AI');
+                    }
                 }
+            } else {
+                aiData = await this.callAIGuess();
             }
 
             if (this.room) {
@@ -586,8 +615,6 @@ export default {
                     return null;
                 }
             
-                this.aiResult = data;
-
                 return data;
             } catch (e) {
                 // eslint-disable-next-line no-console
