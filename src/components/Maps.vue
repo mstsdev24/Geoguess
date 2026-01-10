@@ -320,7 +320,7 @@ export default {
 
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
                         if (aiSnap.exists()) {
-                            const ai = aiSnap.val();
+                            this.applyAIResult(aiSnap.val());
 
                             // 正解地点
                             const answerPos = new google.maps.LatLng(
@@ -502,6 +502,34 @@ export default {
                 });
             }
         },
+        applyAIResult(ai) {
+            if (!ai) return;
+
+            const answerPos = new google.maps.LatLng(
+                this.randomLatLng.lat(),
+                this.randomLatLng.lng()
+            );
+            const aiPos = new google.maps.LatLng(
+                ai.latitude,
+                ai.longitude
+            );
+
+            let aiDistance = null;
+            if (google.maps.geometry?.spherical) {
+                aiDistance =
+                    google.maps.geometry.spherical.computeDistanceBetween(
+                        aiPos,
+                        answerPos
+                    );
+            }
+ 
+            this.aiResult = {
+                ...ai,
+                distance: aiDistance
+            };
+
+            this.$refs.map.putMarker(aiPos, false, 'AI');
+        },    
         async selectLocation() {
             // ① まず人間の距離・スコアを計算
             this.calculateDistance();
@@ -567,6 +595,33 @@ export default {
                     .set(getSelectedPos(this.selectedPos, this.mode));
             } else {
                 // シングルプレイ（今回はAIなし想定）
+                if (aiData) {
+                    const answerPos = new google.maps.LatLng(
+                        this.randomLatLng.lat(),
+                        this.randomLatLng.lng()
+                    );
+                    const aiPos = new google.maps.LatLng(
+                        aiData.latitude,
+                        aiData.longitude
+                    );
+
+                    let aiDistance = null;
+                    if (google.maps.geometry?.spherical) {
+                        aiDistance =
+                            google.maps.geometry.spherical.computeDistanceBetween(
+                                aiPos,
+                                answerPos
+                            );
+                    }
+
+                    this.aiResult = {
+                        ...aiData,
+                        distance: aiDistance
+                    };
+
+                    this.$refs.map.putMarker(aiPos, false, 'AI');
+                }
+            
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
