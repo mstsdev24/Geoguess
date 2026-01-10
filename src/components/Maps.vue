@@ -517,6 +517,7 @@ export default {
                     try {
                         aiData = await this.callAIGuess();
                     } catch (e) {
+                        /* eslint-disable-next-line no-console */
                         console.error('AI guess failed', e);
                         aiData = null;
                     }
