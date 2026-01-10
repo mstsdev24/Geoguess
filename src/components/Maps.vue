@@ -321,7 +321,6 @@ export default {
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
                         if (aiSnap.exists()) {
                             this.applyAIResult(aiSnap.val());
-                            }
                         }
                         // Put markers and draw polylines on the map
                         let i = 0;
