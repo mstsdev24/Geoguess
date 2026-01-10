@@ -505,6 +505,7 @@ export default {
             if (this.room) {
                 // ② すでに AI がいれば読む
                 const snap = await this.room.child(`ai/round${this.round}`).get();
+            
                 if (snap.exists()) {
                     this.applyAIResult(snap.val());
                 } else if (this.playerNumber === 1) {
@@ -517,10 +518,11 @@ export default {
                 aiData = await this.callAIGuess();
                 if (aiData) {
                     this.applyAIResult(aiData);
+                }
             }
 
             if (this.room) {
-                // ④ 人間の結果を保存
+                // ③ 人間の結果を保存
                 this.room
                     .child(`round${this.round}/player${this.playerNumber}`)
                     .set({
@@ -534,15 +536,7 @@ export default {
                     .child(`guess/player${this.playerNumber}`)
                     .set(getSelectedPos(this.selectedPos, this.mode));
             } else {
-                // シングルプレイ（今回はAIなし想定）
-                if (aiData) {
-                    this.applyAIResult(aiData);
-                }
-                    if (this.$refs.map) {
-                        this.$refs.map.putMarker(aiPos, false, 'AI');
-                    }
-                }
-            
+                // シングルプレイ（今回はAIなし想定）            
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
