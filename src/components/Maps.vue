@@ -321,42 +321,6 @@ export default {
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
                         if (aiSnap.exists()) {
                             this.applyAIResult(aiSnap.val());
-
-                            // 正解地点
-                            const answerPos = new google.maps.LatLng(
-                              this.randomLatLng.lat(),
-                              this.randomLatLng.lng()
-                            );
-
-                            // AI地点
-                            const aiPos = new google.maps.LatLng(
-                              ai.latitude,
-                              ai.longitude
-                            );
-
-                            // 距離計算（km）
-                            let aiDistance = null;
-                            if (google.maps.geometry && google.maps.geometry.spherical) {
-                              aiDistance =
-                                google.maps.geometry.spherical.computeDistanceBetween(
-                                  aiPos,
-                                  answerPos
-                                );
-                            }
-
-                            // aiResult を完全な形にする
-                            this.aiResult = {
-                                ...ai,
-                                distance: aiDistance
-                            };
-
-                            // マーカー表示（距離を渡す）
-                            if (this.$refs.map && aiDistance !== null) {
-                                this.$refs.map.putMarker(
-                                  aiPos,
-                                  false,
-                                  'AI'
-                                );
                             }
                         }
                         // Put markers and draw polylines on the map
@@ -528,7 +492,9 @@ export default {
                 distance: aiDistance
             };
 
-            this.$refs.map.putMarker(aiPos, false, 'AI');
+            if (this.$refs.map) {
+                this.$refs.map.putMarker(aiPos, false, 'AI');
+            }
         },    
         async selectLocation() {
             // ① まず人間の距離・スコアを計算
@@ -540,43 +506,17 @@ export default {
                 // ② すでに AI がいれば読む
                 const snap = await this.room.child(`ai/round${this.round}`).get();
                 if (snap.exists()) {
-                    aiData = snap.val();
+                    this.applyAIResult(snap.val());
                 } else if (this.playerNumber === 1) {
-                    try {
-                        aiData = await this.callAIGuess();
-                    } catch (e) {
-                        /* eslint-disable-next-line no-console */
-                        console.error('AI guess failed', e);
-                        aiData = null;
-                    }
-            
+                    aiData = await this.callAIGuess();
                     if (aiData) {
-                        const answerPos = new google.maps.LatLng(
-                            this.randomLatLng.lat(),
-                            this.randomLatLng.lng()
-                        );
-                        const aiPos = new google.maps.LatLng(
-                            aiData.latitude,
-                            aiData.longitude
-                        );
-
-                        let aiDistance = null;
-                        if (google.maps.geometry?.spherical) {
-                            aiDistance =
-                                google.maps.geometry.spherical.computeDistanceBetween(
-                                    aiPos,
-                                    answerPos
-                                );
-                        }
-                        this.aiResult = {
-                            ...aiData,
-                            distance: aiDistance
-                        };
-                        this.$refs.map.putMarker(aiPos, false, 'AI');
+                        this.applyAIResult(aiData);
                     }
                 }
             } else {
                 aiData = await this.callAIGuess();
+                if (aiData) {
+                    this.applyAIResult(aiData);
             }
 
             if (this.room) {
@@ -596,30 +536,11 @@ export default {
             } else {
                 // シングルプレイ（今回はAIなし想定）
                 if (aiData) {
-                    const answerPos = new google.maps.LatLng(
-                        this.randomLatLng.lat(),
-                        this.randomLatLng.lng()
-                    );
-                    const aiPos = new google.maps.LatLng(
-                        aiData.latitude,
-                        aiData.longitude
-                    );
-
-                    let aiDistance = null;
-                    if (google.maps.geometry?.spherical) {
-                        aiDistance =
-                            google.maps.geometry.spherical.computeDistanceBetween(
-                                aiPos,
-                                answerPos
-                            );
+                    this.applyAIResult(aiData);
+                }
+                    if (this.$refs.map) {
+                        this.$refs.map.putMarker(aiPos, false, 'AI');
                     }
-
-                    this.aiResult = {
-                        ...aiData,
-                        distance: aiDistance
-                    };
-
-                    this.$refs.map.putMarker(aiPos, false, 'AI');
                 }
             
                 this.$refs.map.putMarker(this.randomLatLng, true);
