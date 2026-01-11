@@ -29,13 +29,17 @@
               v-if="aiResult"
               class="ai-result-box"
             >
-              <h3>🤖 AIの推測</h3>
+              <h3>{{ $t('ai.title') }}</h3>
               <p>
-                誤差：
-                {{ Math.floor(aiResult.distance / 1000) }} km
+                $t('ai.distance', {
+                  value: Math.floor(aiResult.distance / 1000)
               </p>
               <p class="ai-reason">
-                {{ aiResult.reason }}
+                {{ 
+                  $t('ai.reason', {
+                    reason: aiResult.reason
+                  })
+                }}
               </p>
             </div>
 
