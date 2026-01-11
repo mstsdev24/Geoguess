@@ -253,6 +253,7 @@ export default {
             printMapFull: false,
             countdownStarted: false,
             aiResult: null,
+            aiMarker: null,
             isAILoading: false,
             game: {
                 multiplayer: !!this.roomName,
@@ -466,7 +467,9 @@ export default {
             }
         },
         applyAIResult(ai) {
-            if (!ai) return;
+            if (!ai || !this.$refs.map) return;
+
+            if (this.aiResult) return;
 
             const answerPos = new google.maps.LatLng(
                 this.randomLatLng.lat(),
@@ -491,9 +494,11 @@ export default {
                 distance: aiDistance
             };
 
-            if (this.$refs.map) {
-                this.$refs.map.putMarker(aiPos, false, 'AI');
+            if (this.aiMarker) {
+                this.aiMarker.setMap(null);
+                this.aiMarker = null;
             }
+            this.aiMarker = this.$refs.map.putMarker(aiPos, false, 'AI');
         },    
         async selectLocation() {
             // ① まず人間の距離・スコアを計算
@@ -639,6 +644,10 @@ export default {
                 this.dialogSummary = false;
                 this.isSummaryButtonVisible = false;
                 this.aiResult = null;
+                if (this.aiMarker) {
+                    this.aiMarker.setMap(null);
+                    this.aiMarker = null;
+                }
             }
 
             // Reset
@@ -681,6 +690,31 @@ export default {
     .v-alert {
         z-index: 2;
     }
+}
+
+/* AI 推測結果表示 */
+.ai-result-box {
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.ai-result-box h3 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  color: #ffd54f;
+}
+
+.ai-result-box p {
+  margin: 2px 0;
+}
+
+.ai-result-box .ai-reason {
+  font-size: 13px;
+  opacity: 0.9;
 }
 
 #container-map {
