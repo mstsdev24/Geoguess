@@ -73,6 +73,10 @@
     "exit": "EXIT",
     "reset": "RESET",
     "playAgain": "PLAY AGAIN",
+    "ai": {
+    "title": "🤖 AI Guess",
+    "distance": "Error: {value} km"
+    },
     "infoWindow": {
       "Distance": "Distance",
       "Points": "Points"
