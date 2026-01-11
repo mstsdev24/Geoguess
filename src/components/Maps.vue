@@ -29,15 +29,15 @@
               v-if="aiResult"
               class="ai-result-box"
             >
-              <h3>{{ $t('ai.title') }}</h3>
+              <h3>{{ $t('Maps.ai.title') }}</h3>
               <p>
-                {{ $t('ai.distance', {
+                {{ $t('Maps.ai.distance', {
                   value: Math.floor(aiResult.distance / 1000)
                 }) }}
               </p>
               <p class="ai-reason">
                 {{ 
-                  $t('ai.reason', {
+                  $t('Maps.ai.reason', {
                     reason: aiResult.reason
                   })
                 }}
@@ -529,12 +529,22 @@ export default {
                 this.aiMarker.setMap(null);
             }
             const aiIcon = {
-                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                scale: 6,
-                fillColor: "#2196F3",
-                fillOpacity: 1,
-                strokeColor: "#0D47A1",
-                strokeWeight: 1,
+                url: `data:image/svg+xml;utf8,
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+                  <path d="M18 0C11 0 5 6 5 13c0 9 13 23 13 23s13-14 13-23C31 6 25 0 18 0z"
+                        fill="%232196F3"/>
+                  <circle cx="18" cy="14" r="7" fill="white"/>
+                  <text x="18" y="18"
+                        text-anchor="middle"
+                        font-size="8"
+                        font-weight="bold"
+                        fill="%232196F3"
+                        font-family="Arial">
+                    AI
+                  </text>
+                </svg>`,
+                scaledSize: new google.maps.Size(36, 36),
+                anchor: new google.maps.Point(18, 36),
             };
             this.aiMarker = new google.maps.Marker({
                 position: aiPos,
