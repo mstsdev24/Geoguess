@@ -257,7 +257,7 @@ export default {
             pinActive: localStorage.getItem('pinActive') === 'true',
             printMapFull: false,
             countdownStarted: false,
-            aiResults: {}, 
+            aiResults: Object.create(null), 
             aiMarker: null,
             aiPolyline: null,
             isAILoading: false,
@@ -278,7 +278,7 @@ export default {
             }
         },
         aiResult() {
-            return this.aiResults[this.round] || null;
+            return this.aiResults[String(this.round)] || null;
         },
     },
     watch: {
@@ -329,7 +329,7 @@ export default {
                         this.$emit('showResult');
 
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
-                        if (aiSnap.exists() && !this.aiResults[this.round]) {
+                        if (aiSnap.exists()) {
                             this.applyAIResult(aiSnap.val());
                         }
                         // Put markers and draw polylines on the map
@@ -477,7 +477,8 @@ export default {
         },
         applyAIResult(ai) {
             if (!ai || !this.$refs.map) return;
-            if (this.aiResults[this.round]) return;
+            const roundKey = String(this.round);
+            if (this.aiResults[roundKey]) return;
 
             const answerPos = new google.maps.LatLng(
                 this.randomLatLng.lat(),
@@ -497,7 +498,7 @@ export default {
                     );
             }
  
-            this.$set(this.aiResults, this.round, {
+            this.$set(this.aiResults, roundKey, {
                 ...ai,
                 distance: aiDistance,
             });
