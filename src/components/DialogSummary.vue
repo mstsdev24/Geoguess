@@ -162,7 +162,6 @@ export default {
 #summary-text {
     font-size: 18px;
     opacity: 0.9;
-    color: #ffffff;
 }
 
 @media (max-width: 450px) {
