@@ -580,7 +580,8 @@ export default {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
                         lat: this.randomLatLng.lat(), 
-                        lng: this.randomLatLng.lng() 
+                        lng: this.randomLatLng.lng(),
+                        lang: this.$i18n.locale
                     }),
                 });
 
