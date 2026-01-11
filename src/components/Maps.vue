@@ -31,8 +31,9 @@
             >
               <h3>{{ $t('ai.title') }}</h3>
               <p>
-                $t('ai.distance', {
+                {{ $t('ai.distance', {
                   value: Math.floor(aiResult.distance / 1000)
+                }) }}
               </p>
               <p class="ai-reason">
                 {{ 
@@ -258,6 +259,7 @@ export default {
             countdownStarted: false,
             aiResults: {}, 
             aiMarker: null,
+            aiPolyline: null,
             isAILoading: false,
             game: {
                 multiplayer: !!this.roomName,
@@ -500,12 +502,39 @@ export default {
                 distance: aiDistance,
             });
 
+            if (this.aiPolyline) {
+                this.aiPolyline.setMap(null);
+            }
+
+            this.aiPolyline = new google.maps.Polyline({
+                path: [aiPos, answerPos],
+                geodesic: true,
+                strokeOpacity: 0,
+                icons: [
+                    {
+                        icon: {
+                            path: "M 0,-1 0,1",
+                            strokeOpacity: 1,
+                            scale: 4,
+                            strokeColor: "#2196F3", // AI用：青
+                        },
+                        offset: "0",
+                        repeat: "10px",
+                    },
+                ],
+                map: this.$refs.map.map,
+            });
+
             if (this.aiMarker) {
                 this.aiMarker.setMap(null);
             }
             const aiIcon = {
-                url: "@/assets/ai-marker.png",
-                scaledSize: new google.maps.Size(32, 32),
+                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                scale: 6,
+                fillColor: "#2196F3",
+                fillOpacity: 1,
+                strokeColor: "#0D47A1",
+                strokeWeight: 1,
             };
             this.aiMarker = new google.maps.Marker({
                 position: aiPos,
@@ -659,6 +688,12 @@ export default {
             this.aiMarker.setMap(null);
             this.aiMarker = null;
             }
+            
+            if (this.aiPolyline) {
+                this.aiPolyline.setMap(null);
+                this.aiPolyline = null;
+            }
+            
             if (isPlayAgain) {
                 this.dialogSummary = false;
                 this.isSummaryButtonVisible = false;
