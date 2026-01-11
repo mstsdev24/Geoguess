@@ -42,15 +42,8 @@ export default {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     padding: 1% 2%;
-    color: white;
+    color: black;
     position: relative;
-    h2 {
-        color: white;
-    }
-    p {
-        color: white;
-        line-height: 1.5;
-    }
     .details-map_link {
         color: #e0ffe0;
         right: 0.6rem;
