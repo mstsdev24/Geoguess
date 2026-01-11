@@ -75,7 +75,8 @@
     "playAgain": "もう一度遊ぶ",
     "ai": {
     "title": "🤖 AIの推測",
-    "distance": "誤差：{value} km"
+    "distance": "誤差：{value} km",
+    "reason": "理由：{reason}"
     },
     "infoWindow": {
       "Distance": "距離",
