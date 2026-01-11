@@ -73,6 +73,10 @@
     "exit": "終了する",
     "reset": "リセット",
     "playAgain": "もう一度遊ぶ",
+    "ai": {
+    "title": "🤖 AIの推測",
+    "distance": "誤差：{value} km"
+    },
     "infoWindow": {
       "Distance": "距離",
       "Points": "ポイント"
