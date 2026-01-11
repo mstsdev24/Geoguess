@@ -6,7 +6,16 @@ exports.handler = async (event, context) => {
     if (!event.body) {
       throw new Error("No body found");
     }
-    const { lat, lng } = JSON.parse(event.body);
+    const { lat, lng, lang } = JSON.parse(event.body);
+
+    const languageMap = {
+    ja: "Japanese",
+    en: "English",
+    fr: "French",
+    de: "German",
+    };
+
+    const responseLanguage = languageMap[lang] || "English";
 
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     const VUE_APP_API_KEY = process.env.VUE_APP_API_KEY;
@@ -28,7 +37,17 @@ exports.handler = async (event, context) => {
     const body = {
       contents: [{
         parts: [
-          { text: "Estimate the latitude and longitude of this Google Street View image. Return ONLY a valid JSON object like this: {\"latitude\": 35.0, \"longitude\": 139.0, \"reason\": \"string\"}. Do not include markdown formatting or any other text. Responses of text for reason should be written in Japanese, not English." },
+          { 
+            text: `
+          Estimate the latitude and longitude of this Google Street View image.
+
+          Return ONLY a valid JSON object:
+          { "latitude": number, "longitude": number, "reason": string }
+
+          Do not include markdown or extra text.
+          The "reason" must be written in ${responseLanguage}.
+          `
+          },
           {
             inlineData: {
               mimeType: "image/jpeg",
