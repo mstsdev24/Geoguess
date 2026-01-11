@@ -73,6 +73,10 @@
     "exit": "VERLASSEN",
     "reset": "RESET",
     "playAgain": "ERNEUT SPIELEN",
+    "ai": {
+    "title": "🤖 KI-Schätzung",
+    "distance": "Abweichung: {value} km"
+    },
     "infoWindow": {
       "Distance": "Distanz",
       "Points": "Punkte"
