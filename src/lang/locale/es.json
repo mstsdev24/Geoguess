@@ -75,7 +75,8 @@
     "playAgain": "JUGAR OTRA VEZ",
     "ai": {
     "title": "🤖 Estimación de la IA",
-    "distance": "Error: {value} km"
+    "distance": "Error: {value} km",
+    "reason": "Motivo: {reason}"
     },
     "infoWindow": {
       "Distance": "Distancia",
