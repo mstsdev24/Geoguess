@@ -75,7 +75,8 @@
     "playAgain": "PLAY AGAIN",
     "ai": {
     "title": "🤖 AI Guess",
-    "distance": "Error: {value} km"
+    "distance": "Error: {value} km",
+    "reason": "Reason: {reason}"
     },
     "infoWindow": {
       "Distance": "Distance",
