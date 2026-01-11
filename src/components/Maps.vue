@@ -537,7 +537,7 @@ export default {
                     .set(getSelectedPos(this.selectedPos, this.mode));
 
             } else {
-                aiData = await this.callAIGuess();
+                const aiData = await this.callAIGuess();
                 if (aiData) {
                     this.applyAIResult(aiData);
                 }
@@ -648,7 +648,7 @@ export default {
             if (isPlayAgain) {
                 this.dialogSummary = false;
                 this.isSummaryButtonVisible = false;
-    　　　　　　  this.$delete(this.aiResults, this.round);
+                this.$delete(this.aiResults, this.round);
                 if (this.aiMarker) {
                     this.aiMarker.setMap(null);
                     this.aiMarker = null;
