@@ -252,7 +252,7 @@ export default {
             pinActive: localStorage.getItem('pinActive') === 'true',
             printMapFull: false,
             countdownStarted: false,
-            aiResult: null,
+            aiResults: {}, 
             aiMarker: null,
             isAILoading: false,
             game: {
@@ -270,6 +270,9 @@ export default {
             } else {
                 return this.isNextStreetViewReady;            
             }
+        },
+        aiResult() {
+            return this.aiResults[this.round] || null;
         },
     },
     watch: {
@@ -320,7 +323,7 @@ export default {
                         this.$emit('showResult');
 
                         const aiSnap = snapshot.child(`ai/round${this.round}`);
-                        if (aiSnap.exists()) {
+                        if (aiSnap.exists() && !this.aiResults[this.round]) {
                             this.applyAIResult(aiSnap.val());
                         }
                         // Put markers and draw polylines on the map
@@ -468,8 +471,7 @@ export default {
         },
         applyAIResult(ai) {
             if (!ai || !this.$refs.map) return;
-
-            if (this.aiResult) return;
+            if (this.aiResults[this.round]) return;
 
             const answerPos = new google.maps.LatLng(
                 this.randomLatLng.lat(),
@@ -489,22 +491,19 @@ export default {
                     );
             }
  
-            this.aiResult = {
+            this.$set(this.aiResults, this.round, {
                 ...ai,
-                distance: aiDistance
-            };
+                distance: aiDistance,
+            });
 
             if (this.aiMarker) {
                 this.aiMarker.setMap(null);
-                this.aiMarker = null;
             }
             this.aiMarker = this.$refs.map.putMarker(aiPos, false, 'AI');
         },    
         async selectLocation() {
             // ① まず人間の距離・スコアを計算
             this.calculateDistance();
-
-            let aiData = null;
 
             if (this.room) {
                 // ② すでに AI がいれば読む
@@ -513,34 +512,36 @@ export default {
                 if (snap.exists()) {
                     this.applyAIResult(snap.val());
                 } else if (this.playerNumber === 1) {
-                    aiData = await this.callAIGuess();
+                    const aiData = await this.callAIGuess();
+
                     if (aiData) {
+                        await this.room.child(`ai/round${this.round}`).set(aiData);
                         this.applyAIResult(aiData);
                     }
                 }
-            } else {
-                aiData = await this.callAIGuess();
-                if (aiData) {
-                    this.applyAIResult(aiData);
-                }
-            }
 
-            if (this.room) {
-                // ③ 人間の結果を保存
+                // ⑤ 人間の結果を保存（全員）
                 this.room
                     .child(`round${this.round}/player${this.playerNumber}`)
                     .set({
                         ...getSelectedPos(this.selectedPos, this.mode),
                         distance: this.distance,
                         points: this.point,
-                        timePassed: this.startTime ? new Date() - this.startTime : 0,
+                        timePassed: this.startTime
+                            ? new Date() - this.startTime
+                            : 0,
                     });
 
                 this.room
                     .child(`guess/player${this.playerNumber}`)
                     .set(getSelectedPos(this.selectedPos, this.mode));
+
             } else {
-                // シングルプレイ（今回はAIなし想定）            
+                aiData = await this.callAIGuess();
+                if (aiData) {
+                    this.applyAIResult(aiData);
+                }
+           
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
@@ -640,10 +641,14 @@ export default {
             this.startTime = new Date();
         },
         goToNextRound(isPlayAgain = false) {
+            if (this.aiMarker) {
+            this.aiMarker.setMap(null);
+            this.aiMarker = null;
+            }
             if (isPlayAgain) {
                 this.dialogSummary = false;
                 this.isSummaryButtonVisible = false;
-                this.aiResult = null;
+    　　　　　　  this.$delete(this.aiResults, this.round);
                 if (this.aiMarker) {
                     this.aiMarker.setMap(null);
                     this.aiMarker = null;
