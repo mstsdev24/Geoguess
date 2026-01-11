@@ -75,7 +75,8 @@
     "playAgain": "ERNEUT SPIELEN",
     "ai": {
     "title": "🤖 KI-Schätzung",
-    "distance": "Abweichung: {value} km"
+    "distance": "Abweichung: {value} km",
+    "reason": "Begründung: {reason}"
     },
     "infoWindow": {
       "Distance": "Distanz",
