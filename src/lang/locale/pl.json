@@ -73,6 +73,11 @@
     "exit": "WYJDŹ",
     "reset": "ANULUJ",
     "playAgain": "ZAGRAJ PONOWNIE",
+    "ai": {
+    "title": "🤖 Przewidywanie SI",
+    "distance": "Błąd: {value} km",
+    "reason": "Uzasadnienie: {reason}"
+    }
     "infoWindow": {
       "Distance": "Dystans",
       "Points": "Punkty"
