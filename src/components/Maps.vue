@@ -35,9 +35,6 @@
                   value: Math.floor(aiResult.distance / 1000)
                 }) }}
               </p>
-              <p v-else>
-                {{ $t('Maps.ai.distanceUnavailable') }}
-              </p>
               <p class="ai-reason">
                 {{ 
                   $t('Maps.ai.reason', {
@@ -480,7 +477,6 @@ export default {
         },
         applyAIResult(ai) {
             if (!ai || !this.$refs.map) return;
-            const roundKey = String(this.round);
             if (this.aiResults[this.round]) return;
 
             const answerPos = new google.maps.LatLng(
