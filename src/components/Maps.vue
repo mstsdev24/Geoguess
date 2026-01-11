@@ -499,7 +499,16 @@ export default {
             if (this.aiMarker) {
                 this.aiMarker.setMap(null);
             }
-            this.aiMarker = this.$refs.map.putMarker(aiPos, false, 'AI');
+            const aiIcon = {
+                url: "https://maps.google.com/mapfiles/kml/shapes/robot.png",
+                scaledSize: new google.maps.Size(32, 32),
+            };
+            this.aiMarker = new google.maps.Marker({
+                position: aiPos,
+                map: this.$refs.map.map,
+                icon: aiIcon,
+                title: 'AI',
+            });
         },    
         async selectLocation() {
             // ① まず人間の距離・スコアを計算
