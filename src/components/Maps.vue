@@ -46,7 +46,7 @@
 
             <div class="alert-container">
                 <Leaderboard
-                    v-if="guessString && !$vuetify.breakpoint.mobile && leaderboardShown"
+                    v-if="!$vuetify.breakpoint.mobile && leaderboardShown && printMapFull"
                     :leaderboard-shown="leaderboardShown"
                 ></Leaderboard>
             </div>
@@ -476,7 +476,12 @@ export default {
             }
         },
         applyAIResult(ai) {
-            if (!ai || !this.$refs.map) return;
+            if (!ai) return;
+            if (!this.$refs.map || !this.$refs.map.map) {
+                this.$nextTick(() => this.applyAIResult(ai));
+                return;
+            }
+            
             const roundKey = String(this.round);
             if (this.aiResults[roundKey]) return;
 
