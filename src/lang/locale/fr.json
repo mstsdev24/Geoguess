@@ -73,6 +73,10 @@
     "exit": "QUITTER",
     "reset": "RÉINITIALISER",
     "playAgain": "REJOUER",
+    "ai": {
+    "title": "🤖 Estimation de l’IA",
+    "distance": "Erreur : {value} km"
+    },
     "infoWindow": {
       "Distance": "Distance",
       "Points": "Points"
