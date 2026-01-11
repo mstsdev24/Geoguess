@@ -500,7 +500,7 @@ export default {
                 this.aiMarker.setMap(null);
             }
             const aiIcon = {
-                url: "https://maps.google.com/mapfiles/kml/shapes/robot.png",
+                url: "@/assets/ai-marker.png",
                 scaledSize: new google.maps.Size(32, 32),
             };
             this.aiMarker = new google.maps.Marker({
