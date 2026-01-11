@@ -77,7 +77,7 @@
     "title": "🤖 Przewidywanie SI",
     "distance": "Błąd: {value} km",
     "reason": "Uzasadnienie: {reason}"
-    }
+    },
     "infoWindow": {
       "Distance": "Dystans",
       "Points": "Punkty"
