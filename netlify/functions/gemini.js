@@ -8,15 +8,6 @@ exports.handler = async (event, context) => {
     }
     const { lat, lng, lang } = JSON.parse(event.body);
 
-    const languageMap = {
-    ja: "Japanese",
-    en: "English",
-    fr: "French",
-    de: "German",
-    };
-
-    const responseLanguage = languageMap[lang] || "English";
-
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     const VUE_APP_API_KEY = process.env.VUE_APP_API_KEY;
 
@@ -45,7 +36,7 @@ exports.handler = async (event, context) => {
           { "latitude": number, "longitude": number, "reason": string }
 
           Do not include markdown or extra text.
-          The "reason" must be written in ${responseLanguage}.
+          The "reason" must be written in language code "${lang}".
           `
           },
           {
