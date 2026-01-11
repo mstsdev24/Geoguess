@@ -73,6 +73,10 @@
     "exit": "退出",
     "reset": "重置",
     "playAgain": "再次游玩",
+    "ai": {
+    "title": "🤖 AI 推测",
+    "distance": "误差：{value} 公里"
+    },
     "infoWindow": {
       "Distance": "距离",
       "Points": "分数"
