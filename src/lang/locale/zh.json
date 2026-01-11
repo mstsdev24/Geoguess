@@ -75,7 +75,8 @@
     "playAgain": "再次游玩",
     "ai": {
     "title": "🤖 AI 推测",
-    "distance": "误差：{value} 公里"
+    "distance": "误差：{value} 公里",
+    "reason": "原因：{reason}"
     },
     "infoWindow": {
       "Distance": "距离",
