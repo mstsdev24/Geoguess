@@ -45,7 +45,6 @@ export default {
     color: black;
     position: relative;
     .details-map_link {
-        color: #e0ffe0;
         right: 0.6rem;
         position: absolute;
         bottom: 0.4rem;
@@ -54,7 +53,6 @@ export default {
         vertical-align: middle;
         .v-icon {
             font-size: 1.2rem;
-            color: #e0ffe0;
         }
     }
 }
