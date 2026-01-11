@@ -1,8 +1,7 @@
-const fetch = require('node-fetch'); // 安全のため commonjs形式で書く場合
+const fetch = require('node-fetch'); 
 
 exports.handler = async (event, context) => {
   try {
-    // Netlify Functions では event.body にデータが入ります
     if (!event.body) {
       throw new Error("No body found");
     }
@@ -11,7 +10,7 @@ exports.handler = async (event, context) => {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     const VUE_APP_API_KEY = process.env.VUE_APP_API_KEY;
 
-    // 1. Google Street View から画像取得
+    // 1. Gea a picture from Google Street View
     const streetViewUrl = `https://maps.googleapis.com/maps/api/streetview?size=640x480&location=${lat},${lng}&key=${VUE_APP_API_KEY}`;
     const imageResponse = await fetch(streetViewUrl);
     
@@ -22,7 +21,7 @@ exports.handler = async (event, context) => {
     const buffer = await imageResponse.arrayBuffer();
     const base64Image = Buffer.from(buffer).toString('base64');
 
-    // 2. Gemini API 呼び出し
+    // 2. Call Gemini API
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const body = {
@@ -48,7 +47,7 @@ exports.handler = async (event, context) => {
         ]
       }],
       generationConfig: {
-        responseMimeType: "application/json" // JSONモードを明示的に指定（Gemini 1.5以降）
+        responseMimeType: "application/json"
       }
     };
 
@@ -64,10 +63,9 @@ exports.handler = async (event, context) => {
         throw new Error("Gemini API returned no candidates: " + JSON.stringify(data));
     }
 
-    // 3. 回答の抽出とパース
+    // 3. Parse the response 
     let aiText = data.candidates[0].content.parts[0].text;
     
-    // JSON以外の文字列が含まれている場合の対策
     const jsonMatch = aiText.match(/\{.*\}/s);
     if (jsonMatch) {
         aiText = jsonMatch[0];
