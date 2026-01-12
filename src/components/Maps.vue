@@ -474,6 +474,22 @@ export default {
                 });
             }
         },
+        applyAIScoreBonus() {
+            if (!this.aiResult) return;
+            if (this.distance == null || this.aiResult.distance == null) return;
+
+            let multiplier = 1.0;
+
+            if (this.distance < this.aiResult.distance) {
+                multiplier = AI_SCORE_MULTIPLIER.win;
+            } else if (this.distance > this.aiResult.distance) {
+                multiplier = AI_SCORE_MULTIPLIER.lose;
+            } else {
+                multiplier = AI_SCORE_MULTIPLIER.draw;
+            }
+
+            this.point = Math.round(this.point * multiplier);
+        },
         applyAIResult(ai) {
             if (!ai) return;
             if (!this.$refs.map || !this.$refs.map.map) {
@@ -577,6 +593,8 @@ export default {
                     }
                 }
 
+                this.applyAIScoreBonus();
+
                 // ⑤ 人間の結果を保存（全員）
                 this.room
                     .child(`round${this.round}/player${this.playerNumber}`)
@@ -598,7 +616,8 @@ export default {
                 if (aiData) {
                     this.applyAIResult(aiData);
                 }
-           
+
+                this.applyAIScoreBonus();
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
