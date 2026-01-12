@@ -204,6 +204,12 @@ import { getSelectedPos } from '../utils';
 import { getScore } from '../utils/game/score';
 import Leaderboard from "@/components/game/Leaderboard.vue";
 
+const AI_SCORE_MULTIPLIER = {
+    win: 1.5,
+    lose: 1.0,
+    draw: 1.0,
+};
+            
 export default {
     components: {
         Leaderboard,
@@ -382,7 +388,8 @@ export default {
                                 playerName,
                                 distance,
                                 points,
-                                false
+                                false,
+                                this.aiResult === 'win' ? 'AIに勝利 +50%' : null
                             );
                             i++;
                         });
@@ -624,7 +631,8 @@ export default {
                     null,
                     this.distance,
                     this.point,
-                    false
+                    false,
+                    this.aiResult === 'win' ? 'AIに勝利 +50%' : null
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
