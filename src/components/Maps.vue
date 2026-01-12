@@ -382,8 +382,7 @@ export default {
                                 playerName,
                                 distance,
                                 points,
-                                false,
-                                posGuess
+                                false
                             );
                             i++;
                         });
@@ -607,7 +606,6 @@ export default {
                     this.distance,
                     this.point,
                     false,
-                    this.selectedPos
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
