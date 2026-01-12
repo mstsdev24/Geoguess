@@ -286,6 +286,12 @@ export default {
         aiResult() {
             return this.aiResults[String(this.round)] || null;
         },
+        aiBattleResult() {
+            if (!this.aiResult || this.distance == null) return null;
+            if (this.distance < this.aiResult.distance) return 'win';
+            if (this.distance > this.aiResult.distance) return 'lose';
+            return 'draw';
+        },
     },
     watch: {
       pinActive() {
@@ -389,7 +395,7 @@ export default {
                                 distance,
                                 points,
                                 false,
-                                this.aiResult === 'win' ? 'AIに勝利 +50%' : null
+                                this.aiBattleResult === 'win' ? 'Beat AI +50%' : null
                             );
                             i++;
                         });
@@ -632,7 +638,7 @@ export default {
                     this.distance,
                     this.point,
                     false,
-                    this.aiResult === 'win' ? 'AIに勝利 +50%' : null
+                    this.aiBattleResult === 'win' ? 'Beat AI +50%' : null
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
