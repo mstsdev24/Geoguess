@@ -605,7 +605,7 @@ export default {
                     null,
                     this.distance,
                     this.point,
-                    false,
+                    false
                 );
                 this.printMapFull = true;
                 this.$refs.map.fitBounds();
