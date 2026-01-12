@@ -594,7 +594,6 @@ export default {
             
             // ① まず人間の距離・スコアを計算
             this.calculateDistance();
-            this.applyAIScoreBonus();
 
             if (this.room) {
                 // ② すでに AI がいれば読む
@@ -611,6 +610,9 @@ export default {
                     }
                 }
 
+                this.applyAIScoreBonus();
+                this.$emit('calculateDistance', this.distance, this.point);
+            
                 // ⑤ 人間の結果を保存（全員）
                 this.room
                     .child(`round${this.round}/player${this.playerNumber}`)
@@ -634,6 +636,7 @@ export default {
                 }
 
                 this.applyAIScoreBonus();
+                this.$emit('calculateDistance', this.distance, this.point);
             
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
@@ -746,8 +749,6 @@ export default {
                     timePassed,
                 });
             }
-
-            this.$emit('calculateDistance', this.distance, this.point);
         },
         startNextRound() {
             this.$refs.map.startNextRound();
