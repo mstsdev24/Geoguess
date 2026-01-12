@@ -588,8 +588,13 @@ export default {
             });
         },    
         async selectLocation() {
+
+            if (this.isGuessButtonClicked) return;
+            this.isGuessButtonClicked = true;
+            
             // ① まず人間の距離・スコアを計算
             this.calculateDistance();
+            this.applyAIScoreBonus();
 
             if (this.room) {
                 // ② すでに AI がいれば読む
@@ -605,9 +610,6 @@ export default {
                         this.applyAIResult(aiData);
                     }
                 }
-
-                this.applyAIScoreBonus();
-                this.$emit('calculateDistance', this.distance, this.point);
 
                 // ⑤ 人間の結果を保存（全員）
                 this.room
@@ -632,7 +634,7 @@ export default {
                 }
 
                 this.applyAIScoreBonus();
-                this.$emit('calculateDistance', this.distance, this.point);
+            
                 this.$refs.map.putMarker(this.randomLatLng, true);
                 this.$refs.map.drawPolyline(this.selectedPos, 1, this.randomLatLng);
                 this.$refs.map.setInfoWindow(
@@ -650,7 +652,6 @@ export default {
             }
 
             this.$refs.map.removeListener();
-            this.isGuessButtonClicked = true;
             this.isSelected = true;
             this.isNextStreetViewReady = false;
         },
@@ -725,7 +726,28 @@ export default {
                     this.scoreMode
                 );
             }
+            // Save the distance into firebase
+            if (this.room) {
+                this.room
+                    .child('round' + this.round + '/player' + this.playerNumber)
+                    .set({
+                        ...getSelectedPos(this.selectedPos, this.mode),
+                        distance: this.distance,
+                        points: this.point,
+                        timePassed,
+                    });
+            } else {
+                this.game.rounds.push({
+                    guess: this.selectedPos,
+                    area: this.area,
+                    position: this.randomLatLng,
+                    distance: this.distance,
+                    points: this.point,
+                    timePassed,
+                });
+            }
 
+            this.$emit('calculateDistance', this.distance, this.point);
         },
         startNextRound() {
             this.$refs.map.startNextRound();
