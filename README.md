@@ -18,7 +18,8 @@ Geoguess is a free and lazy geoguess game. Players compete how close the player 
 You can play multiplayer with your friends up to five friends. The first player creates a room and decides the room size. Other players type the same room name as the first player created and the game will start.
 Cause of Google Map Api price, we aren't enabled to deploy server with unlimited access. But you can deploy your own game server and play this game unlimitedly and free.
 
-This game was forked from [GeoGuess Master Web](https://github.com/spider-hand/Geoguess-Master-Web).
+This game was personally forked from [GeoGuess](https://github.com/GeoGuess/GeoGuess) which forked from [GeoGuess Master Web](https://github.com/spider-hand/Geoguess-Master-Web).
+I added an AI-based estimation benchmark by integrating the Google Gemini Flash API. The Gemini API returns a latitude–longitude pair along with an explanation of its prediction, using the Google Street View image of each round’s starting point. To use this feature, you’ll need a Gemini Flash API key. I deployed the app on Netlify. The code may still contain some bugs and will require further refinement.
 
 ## Table of contents
 
